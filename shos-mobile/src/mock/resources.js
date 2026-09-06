@@ -1,0 +1,66 @@
+// Mock Hospital Resources & Biomedical Equipment
+
+export const MOCK_RESOURCES = [
+  {
+    id: 'RES-VENT-01',
+    name: 'Hamilton-C6 Mechanical Ventilator',
+    type: 'Ventilator',
+    location: 'ICU-B Critical Care',
+    status: 'Allocated',
+    assignedTo: 'Tariq Anwar (Bed ICU-01)',
+    lastServiced: '2026-08-15',
+    batteryHealth: '100%',
+  },
+  {
+    id: 'RES-VENT-02',
+    name: 'Maquet SERVO-u Ventilator',
+    type: 'Ventilator',
+    location: 'Biomedical Equipment Pool (Floor 2)',
+    status: 'Available',
+    assignedTo: null,
+    lastServiced: '2026-08-20',
+    batteryHealth: '98%',
+  },
+  {
+    id: 'RES-MON-01',
+    name: 'Philips IntelliVue MX750 Patient Monitor',
+    type: 'Monitor',
+    location: 'Cardiology HDU Bed 04',
+    status: 'Allocated',
+    assignedTo: 'Rahul Sharma (HDU-Bed-04)',
+    lastServiced: '2026-07-10',
+    batteryHealth: '95%',
+  },
+  {
+    id: 'RES-PUMP-01',
+    name: 'B. Braun Perfusor Space Infusion Pump',
+    type: 'Infusion Pump',
+    location: 'Emergency Resuscitation Bay',
+    status: 'Allocated',
+    assignedTo: 'Emergency STAT',
+    lastServiced: '2026-08-28',
+    batteryHealth: '100%',
+  },
+  {
+    id: 'RES-WHL-01',
+    name: 'Drive Medical Hydraulic Wheelchair #12',
+    type: 'Wheelchair',
+    location: 'OPD Reception Lobby',
+    status: 'Available',
+    assignedTo: null,
+    lastServiced: '2026-09-01',
+    batteryHealth: 'N/A',
+  },
+  {
+    id: 'RES-RAD-01',
+    name: 'Siemens Mobile C-Arm Digital X-Ray',
+    type: 'X-Ray',
+    location: 'Orthopaedic OT Suite 2',
+    status: 'Maintenance',
+    assignedTo: 'Routine Calibration',
+    lastServiced: '2026-09-06 Today',
+    batteryHealth: '90%',
+  },
+];
+
+export default MOCK_RESOURCES;

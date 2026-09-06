@@ -1,0 +1,199 @@
+/* Main Layout Grid & Adaptive Mobile Navigation — Next-Gen Health-Tech Aesthetic */
+
+.shos-layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+.shos-topbar {
+  height: 68px;
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  display: flex;
+  align-items: center;
+  justifyContent: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.04);
+}
+
+.shos-body-container {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.shos-sidebar {
+  width: 268px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  padding: 20px 0;
+  transition: var(--transition);
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  z-index: 40;
+}
+
+.shos-sidebar.collapsed {
+  width: 76px;
+}
+
+.shos-main-content {
+  flex: 1;
+  padding: 28px 36px 72px 36px;
+  overflow-y: auto;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Nav Item Styling with Micro-Interactions */
+.shos-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin: 3px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.shos-nav-item:hover {
+  background-color: rgba(241, 245, 249, 0.9);
+  color: var(--color-text);
+  transform: translateX(4px);
+}
+
+.shos-nav-item.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(37, 99, 235, 0.04) 100%);
+  color: var(--color-primary);
+  font-weight: 700;
+  border-left: 3.5px solid var(--color-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.shos-nav-item.active svg {
+  color: var(--color-primary);
+}
+
+/* Mobile Bottom Bar */
+.shos-mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  align-items: center;
+  justifyContent: space-around;
+}
+
+.mobile-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 6px;
+}
+
+.mobile-nav-btn.active {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+[data-theme="dark"] .shos-mobile-bottom-nav {
+  background: rgba(13, 31, 53, 0.95);
+  border-top-color: #1e3653;
+  box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .mobile-nav-btn {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .mobile-nav-btn.active {
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .shos-nav-item {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .shos-nav-item:hover {
+  background-color: rgba(56, 189, 248, 0.1);
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .shos-nav-item.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(2, 132, 199, 0.1) 100%);
+  color: #38bdf8;
+  border-left-color: #38bdf8;
+  box-shadow: inset 0 1px 0 rgba(56, 189, 248, 0.2);
+}
+
+[data-theme="dark"] .shos-nav-item.active svg {
+  color: #38bdf8;
+}
+
+@media (max-width: 1024px) {
+  .shos-sidebar {
+    display: none;
+  }
+  .shos-mobile-bottom-nav {
+    display: flex;
+  }
+  .shos-main-content {
+    padding: 20px 18px 84px 18px;
+  }
+}
+
+@media (max-width: 860px) {
+  .topbar-search-wrapper {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .shos-topbar {
+    padding: 0 12px;
+    height: 60px;
+  }
+  .topbar-role-label {
+    display: none !important;
+  }
+  .shos-main-content {
+    padding: 14px 10px 84px 10px;
+  }
+}

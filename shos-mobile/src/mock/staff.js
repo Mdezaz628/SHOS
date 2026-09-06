@@ -1,0 +1,98 @@
+// Mock Staff Registry & Shift Attendance
+
+export const MOCK_STAFF = [
+  {
+    id: 'STF-01',
+    name: 'Dr. Vikram Malhotra',
+    role: 'Doctor',
+    department: 'Cardiology',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 12345',
+    workloadScore: '88% (High)',
+  },
+  {
+    id: 'STF-02',
+    name: 'Dr. Ananya Sen',
+    role: 'Doctor',
+    department: 'Pulmonology',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 23456',
+    workloadScore: '74% (Normal)',
+  },
+  {
+    id: 'STF-03',
+    name: 'Sister Priya Nair',
+    role: 'Nurse',
+    department: 'Cardiology HDU',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 34567',
+    workloadScore: '92% (Heavy Load)',
+  },
+  {
+    id: 'STF-04',
+    name: 'Sister Sunita Roy',
+    role: 'Nurse',
+    department: 'ICU-B Critical Care',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 45678',
+    workloadScore: '85% (High)',
+  },
+  {
+    id: 'STF-05',
+    name: 'Nurse Harish Patel',
+    role: 'Nurse',
+    department: 'General Ward',
+    shift: 'Evening (16:00 - 00:00)',
+    status: 'On Leave (Casual)',
+    phone: '+91 98100 56789',
+    workloadScore: '0%',
+  },
+  {
+    id: 'STF-06',
+    name: 'Suresh Kumar',
+    role: 'Ward Boy',
+    department: 'Patient Care & Transport',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 67890',
+    workloadScore: '78% (Normal)',
+  },
+  {
+    id: 'STF-07',
+    name: 'Ananya Roy',
+    role: 'Lab Technician',
+    department: 'Central Pathology Lab',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 78901',
+    workloadScore: '82% (High)',
+  },
+  {
+    id: 'STF-08',
+    name: 'Sunil Mehta',
+    role: 'Pharmacist',
+    department: 'Central Dispensary',
+    shift: 'Morning (08:00 - 16:00)',
+    status: 'Present',
+    phone: '+91 98100 89012',
+    workloadScore: '80% (Normal)',
+  },
+];
+
+export const MOCK_HR_METRICS = {
+  totalStaff: 142,
+  presentToday: 124,
+  absentToday: 8,
+  onLeave: 10,
+  shiftCoveragePercent: 87.3,
+  shortageAlerts: [
+    { role: 'Nursing Officer', shift: 'Night Shift', shortage: 3, priority: 'High' },
+    { role: 'Resident Medical Officer (ICU)', shift: 'Evening Shift', shortage: 1, priority: 'Critical' },
+  ],
+};
+
+export default MOCK_STAFF;

@@ -1,0 +1,15 @@
+export { PatientDashboard } from './PatientDashboard';
+export { DoctorDashboard } from './DoctorDashboard';
+export { NurseDashboard } from './NurseDashboard';
+export { SupportDashboard } from './SupportDashboard';
+export { LabDashboard } from './LabDashboard';
+export { PharmacyDashboard } from './PharmacyDashboard';
+export { AmbulanceDashboard } from './AmbulanceDashboard';
+export { HousekeepingDashboard } from './HousekeepingDashboard';
+export { ParkingDashboard } from './ParkingDashboard';
+export { ReceptionDashboard } from './ReceptionDashboard';
+export { BillingDashboard } from './BillingDashboard';
+export { HRDashboard } from './HRDashboard';
+export { DepartmentDashboard } from './DepartmentDashboard';
+export { AdminDashboard } from './AdminDashboard';
+export { SuperAdminDashboard } from './SuperAdminDashboard';

@@ -18,7 +18,7 @@ const getHostIp = () => {
 
 const LAN_IP = getHostIp();
 export const API_BASE_URL = Platform.OS === 'web'
-  ? 'http://localhost:5000/api'
+  ? 'https://shos-backend.onrender.com/api'
   : `http://${LAN_IP}:5000/api`;
 
 

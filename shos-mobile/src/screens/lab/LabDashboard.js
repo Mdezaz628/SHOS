@@ -28,6 +28,9 @@ export const LabDashboard = ({ navigation }) => {
   // Result Entry Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [param1, setParam1] = useState('14.2');
+  const [param2, setParam2] = useState('2.4');
+  const [param3, setParam3] = useState('7800');
   const [resultFindings, setResultFindings] = useState('');
   const [verifiedBy, setVerifiedBy] = useState('Dr. R. K. Sen (NABL Pathologist)');
   const [workloadFilter, setWorkloadFilter] = useState('all');
@@ -43,15 +46,41 @@ export const LabDashboard = ({ navigation }) => {
 
   const handleOpenResultEntry = (order) => {
     setSelectedOrder(order);
-    setResultFindings(order.result || 'Hemoglobin: 13.8 g/dL (Normal 13.0-17.0)\nWBC Count: 7,400 /mcL\nPlatelets: 2.4 Lakh /mcL');
+    if (order.testName?.toLowerCase().includes('cardiac') || order.testName?.toLowerCase().includes('troponin')) {
+      setParam1('0.02');
+      setParam2('128');
+      setParam3('92');
+      setResultFindings('Troponin-I: 0.02 ng/mL (Normal < 0.04)\nCK-MB: 18 U/L (Normal < 25)\nNo acute myocardial infarction patterns observed.');
+    } else if (order.testName?.toLowerCase().includes('glucose') || order.testName?.toLowerCase().includes('sugar')) {
+      setParam1('94');
+      setParam2('132');
+      setParam3('5.6');
+      setResultFindings('Fasting Plasma Glucose: 94 mg/dL (Normal 70-100)\nPost-Prandial: 132 mg/dL (Normal < 140)\nHbA1c: 5.6% (Non-Diabetic Range).');
+    } else {
+      setParam1('14.2');
+      setParam2('2.4');
+      setParam3('7400');
+      setResultFindings(order.result || 'Hemoglobin: 14.2 g/dL (Normal 13.0-17.0)\nWBC Count: 7,400 /mcL (Normal 4,000-11,000)\nPlatelets: 2.4 Lakh /mcL (Normal 1.5-4.5)');
+    }
     setIsModalOpen(true);
+  };
+
+  const applyPresetValues = (type) => {
+    if (type === 'normal') {
+      setResultFindings('All bio-markers within standard biological reference intervals. Quantitative values calibrated against Bio-Rad controls.');
+    } else if (type === 'critical') {
+      setResultFindings('CRITICAL VALUE ALERT: Elevated levels observed. Immediate telephone intimation conveyed to attending ICU / ER physician.');
+    }
   };
 
   const handleSaveResult = () => {
     if (selectedOrder) {
       completeLabOrder(selectedOrder.id, resultFindings);
       setIsModalOpen(false);
-      Alert.alert('Diagnostic Result Published', `Results for ${selectedOrder.testName} signed and sent to patient EHR & Doctor.`);
+      Alert.alert(
+        'Diagnostic Result Published',
+        `Validated results for ${selectedOrder.testName} signed by ${verifiedBy} and transmitted to Patient EHR & Attending Doctor.`
+      );
     }
   };
 
@@ -123,6 +152,19 @@ export const LabDashboard = ({ navigation }) => {
             color={COLORS.hospitalBlue}
             onPress={() => Alert.alert('NABL Accreditation', 'Laboratory operational under NABL ISO-15189 compliance standards.')}
           />
+        </View>
+
+        {/* STAT Critical Emergency Blood Alerts */}
+        <View style={styles.statAlertBanner}>
+          <View style={styles.statIconWrap}>
+            <Ionicons name="flash" size={18} color={COLORS.triageRed} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.statAlertTitle}>🚨 STAT EMERGENCY SAMPLES IN INCUBATOR</Text>
+            <Text style={styles.statAlertDesc}>
+              SMP-LB-104 (Troponin-I • ICU Bed 4) • Target TAT: &lt; 25 mins • High priority centrifuge
+            </Text>
+          </View>
         </View>
 
         {/* Lab Orders Queue with Touch to Open */}
@@ -205,11 +247,56 @@ export const LabDashboard = ({ navigation }) => {
         onClose={() => setIsModalOpen(false)}
       >
         <Text style={styles.modalSub}>
-          Patient: {selectedOrder?.patientName} (Requisition: {selectedOrder?.id})
+          Patient: {selectedOrder?.patientName} • Requisition #{selectedOrder?.id}
         </Text>
 
+        {/* Quick Reference Range Presets */}
+        <View style={styles.presetChipRow}>
+          <TouchableOpacity
+            style={[styles.modalPresetChip, { borderColor: COLORS.triageGreen }]}
+            onPress={() => applyPresetValues('normal')}
+          >
+            <Ionicons name="checkmark-circle" size={13} color={COLORS.triageGreen} />
+            <Text style={[styles.modalPresetText, { color: COLORS.triageGreen }]}>Set Normal Ref</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.modalPresetChip, { borderColor: COLORS.triageRed }]}
+            onPress={() => applyPresetValues('critical')}
+          >
+            <Ionicons name="alert-circle" size={13} color={COLORS.triageRed} />
+            <Text style={[styles.modalPresetText, { color: COLORS.triageRed }]}>Flag STAT Critical</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Parameter 1 */}
+        <View style={styles.paramInputBox}>
+          <View style={styles.paramHeader}>
+            <Text style={styles.paramLabel}>Primary Bio-Marker (Hemoglobin / Analyte)</Text>
+            <Text style={styles.refRange}>Ref: 13.0 - 17.0 g/dL</Text>
+          </View>
+          <Input
+            value={param1}
+            onChangeText={setParam1}
+            placeholder="e.g. 14.2"
+          />
+        </View>
+
+        {/* Parameter 2 */}
+        <View style={styles.paramInputBox}>
+          <View style={styles.paramHeader}>
+            <Text style={styles.paramLabel}>Secondary Bio-Marker (Platelets / Enzyme)</Text>
+            <Text style={styles.refRange}>Ref: 1.5 - 4.5 Lakh</Text>
+          </View>
+          <Input
+            value={param2}
+            onChangeText={setParam2}
+            placeholder="e.g. 2.4"
+          />
+        </View>
+
+        {/* Quantitative Findings Text */}
         <Input
-          label="Quantitative Findings & Bio-marker Values"
+          label="Clinical Findings & Bio-marker Reference Report"
           value={resultFindings}
           onChangeText={setResultFindings}
           numberOfLines={4}
@@ -217,18 +304,23 @@ export const LabDashboard = ({ navigation }) => {
         />
 
         <Input
-          label="Sign-Off Pathologist / Certifier"
+          label="Certifying Pathologist / Digital Signature"
           value={verifiedBy}
           onChangeText={setVerifiedBy}
         />
 
+        <View style={styles.nablBadgeBox}>
+          <Ionicons name="shield-checkmark" size={16} color={COLORS.hospitalBlue} />
+          <Text style={styles.nablBadgeText}>NABL ISO-15189 Certified Laboratory Sign-off</Text>
+        </View>
+
         <Button
-          title="Sign & Transmit Report"
+          title="Sign & Transmit to Patient EHR & Doctor"
           variant="primary"
           size="medium"
           icon="checkmark-done"
           onPress={handleSaveResult}
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 10 }}
         />
       </Modal>
     </SafeAreaView>
@@ -255,7 +347,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginBottom: 16,
+    marginBottom: 14,
+  },
+  statAlertBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${COLORS.triageRed}12`,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.triageRed,
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 14,
+    gap: 10,
+  },
+  statIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.cardBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statAlertTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.triageRed,
+    letterSpacing: 0.5,
+  },
+  statAlertDesc: {
+    fontSize: 11,
+    color: COLORS.navy,
+    marginTop: 2,
+    lineHeight: 15,
   },
   orderCard: {
     marginBottom: 14,
@@ -320,6 +443,58 @@ const styles = StyleSheet.create({
   modalSub: {
     fontSize: 12,
     color: COLORS.slate,
+    marginBottom: 10,
+  },
+  presetChipRow: {
+    flexDirection: 'row',
+    gap: 8,
     marginBottom: 12,
+  },
+  modalPresetChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: COLORS.offWhite,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  modalPresetText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  paramInputBox: {
+    marginBottom: 4,
+  },
+  paramHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  paramLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.slate,
+  },
+  refRange: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.hospitalBlue,
+  },
+  nablBadgeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.tealLight,
+    padding: 8,
+    borderRadius: 8,
+    gap: 8,
+    marginTop: 4,
+  },
+  nablBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.navy,
   },
 });

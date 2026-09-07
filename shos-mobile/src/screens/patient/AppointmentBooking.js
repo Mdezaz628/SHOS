@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Modal,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -208,21 +209,95 @@ export const AppointmentBooking = ({ route, navigation }) => {
         <View style={{ height: 30 }} />
       </ScrollView>
 
-      {/* Booking Confirmation Dialog */}
-      <ConfirmationModal
+      {/* Official Digital OPD Appointment Token Slip Modal (Web Parity) */}
+      <Modal
         visible={!!confirmedToken}
-        title="Appointment Confirmed!"
-        message={`Your appointment with ${doctor?.name || 'Dr. Vikram Malhotra'} has been scheduled.\n\nYour Assigned Token: #${confirmedToken}\nOPD Room: ${doctor?.roomNumber || 'OPD-204'}\nSlot: ${selectedSlot}`}
-        confirmText="View in Live Queue"
-        onConfirm={() => {
-          setConfirmedToken(null);
-          navigation.navigate('Queue');
-        }}
-        onCancel={() => {
-          setConfirmedToken(null);
-          navigation.goBack();
-        }}
-      />
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setConfirmedToken(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.tokenSlipCard}>
+            <View style={styles.tokenSlipHeader}>
+              <View style={styles.hospitalLogoRow}>
+                <Ionicons name="medkit" size={20} color={COLORS.hospitalBlue} />
+                <Text style={styles.slipHospitalName}>SHOS MULTISPECIALTY HOSPITAL</Text>
+              </View>
+              <Text style={styles.slipTitle}>OFFICIAL OPD APPOINTMENT TOKEN SLIP</Text>
+            </View>
+
+            {/* Huge Token Circle */}
+            <View style={styles.tokenHero}>
+              <Text style={styles.tokenHeroLabel}>ASSIGNED QUEUE TOKEN</Text>
+              <Text style={styles.tokenHeroNum}>#{confirmedToken}</Text>
+              <Text style={styles.tokenHeroHint}>Please report 10 mins before time slot</Text>
+            </View>
+
+            {/* Slip Details Grid */}
+            <View style={styles.slipDetailsBox}>
+              <View style={styles.slipRow}>
+                <Text style={styles.slipLabel}>Specialist Doctor:</Text>
+                <Text style={styles.slipVal}>{doctor?.name || 'Dr. Vikram Malhotra'}</Text>
+              </View>
+              <View style={styles.slipRow}>
+                <Text style={styles.slipLabel}>Department:</Text>
+                <Text style={styles.slipVal}>{doctor?.specialty || 'Cardiology'}</Text>
+              </View>
+              <View style={styles.slipRow}>
+                <Text style={styles.slipLabel}>Consultation Room:</Text>
+                <Text style={[styles.slipVal, { color: COLORS.hospitalBlue, fontWeight: '800' }]}>
+                  {doctor?.roomNumber || 'Room OPD-204 (2nd Floor)'}
+                </Text>
+              </View>
+              <View style={styles.slipRow}>
+                <Text style={styles.slipLabel}>Date & Slot:</Text>
+                <Text style={styles.slipVal}>{selectedDate} • {selectedSlot}</Text>
+              </View>
+              <View style={styles.slipRow}>
+                <Text style={styles.slipLabel}>Patient UHID:</Text>
+                <Text style={styles.slipVal}>{currentUser?.uhid || 'SHOS-2026-8942'}</Text>
+              </View>
+              <View style={[styles.slipRow, { borderBottomWidth: 0 }]}>
+                <Text style={styles.slipLabel}>Patient Name:</Text>
+                <Text style={styles.slipVal}>{currentUser?.name || 'Rahul Sharma'}</Text>
+              </View>
+            </View>
+
+            {/* Simulated Digital Security Barcode */}
+            <View style={styles.barcodeWrap}>
+              <Ionicons name="qr-code-outline" size={44} color={COLORS.navy} />
+              <View style={{ marginLeft: 12 }}>
+                <Text style={styles.barcodeCode}>SHOS-OPD-{confirmedToken}-2026</Text>
+                <Text style={styles.barcodeSub}>Scan at OPD Kiosk / Waiting Hall Display</Text>
+              </View>
+            </View>
+
+            <View style={styles.slipActions}>
+              <Button
+                title="View in Live OPD Queue"
+                variant="primary"
+                size="large"
+                icon="time"
+                onPress={() => {
+                  setConfirmedToken(null);
+                  navigation.navigate('Queue');
+                }}
+                style={{ width: '100%', marginBottom: 8 }}
+              />
+              <Button
+                title="Save & Return to Dashboard"
+                variant="outline"
+                size="medium"
+                onPress={() => {
+                  setConfirmedToken(null);
+                  navigation.goBack();
+                }}
+                style={{ width: '100%' }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -360,5 +435,124 @@ const styles = StyleSheet.create({
   confirmBtn: {
     width: '100%',
     marginTop: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  tokenSlipCard: {
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  tokenSlipHeader: {
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+    paddingBottom: 12,
+    marginBottom: 14,
+  },
+  hospitalLogoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  slipHospitalName: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: COLORS.hospitalBlue,
+    letterSpacing: 0.5,
+  },
+  slipTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.slate,
+    letterSpacing: 0.5,
+  },
+  tokenHero: {
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    borderRadius: 16,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginBottom: 14,
+  },
+  tokenHeroLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.hospitalBlue,
+    letterSpacing: 1,
+  },
+  tokenHeroNum: {
+    fontSize: 42,
+    fontWeight: '900',
+    color: COLORS.hospitalBlue,
+    lineHeight: 48,
+    marginVertical: 2,
+  },
+  tokenHeroHint: {
+    fontSize: 11,
+    color: COLORS.navy,
+    fontWeight: '600',
+  },
+  slipDetailsBox: {
+    backgroundColor: COLORS.offWhite,
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+    marginBottom: 14,
+  },
+  slipRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  slipLabel: {
+    fontSize: 11,
+    color: COLORS.slate,
+    fontWeight: '600',
+  },
+  slipVal: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.navy,
+  },
+  barcodeWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  barcodeCode: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.navy,
+    letterSpacing: 1,
+  },
+  barcodeSub: {
+    fontSize: 10,
+    color: COLORS.slate,
+    marginTop: 2,
+  },
+  slipActions: {
+    width: '100%',
   },
 });

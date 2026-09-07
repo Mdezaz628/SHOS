@@ -18,12 +18,15 @@ import { MapPlaceholder } from '../../components/hospital/MapPlaceholder';
 
 export const AmbulanceTrackingScreen = ({ navigation }) => {
   const [etaMins, setEtaMins] = useState(8);
-  const [status, setStatus] = useState('en_route');
+  const [distanceKm, setDistanceKm] = useState(3.6);
+  const [routeProgress, setRouteProgress] = useState(25);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setEtaMins((prev) => (prev > 1 ? prev - 1 : 1));
-    }, 15000);
+      setDistanceKm((prev) => (prev > 0.4 ? +(prev - 0.4).toFixed(1) : 0.3));
+      setRouteProgress((prev) => (prev < 90 ? prev + 10 : 95));
+    }, 12000);
     return () => clearInterval(interval);
   }, []);
 
@@ -31,10 +34,14 @@ export const AmbulanceTrackingScreen = ({ navigation }) => {
     Alert.alert('Calling Ambulance Driver', 'Connecting to Rajesh Yadav: +91 98765 43217.');
   };
 
+  const handleCallEMT = () => {
+    Alert.alert('Calling Paramedic EMT', 'Connecting to EMT Specialist Sister Sunita: +91 98765 43219.');
+  };
+
   const handleCancel = () => {
-    Alert.alert('Cancel Dispatch', 'Are you sure you wish to cancel this ambulance dispatch?', [
+    Alert.alert('Cancel Emergency Dispatch', 'Are you sure you wish to cancel this ambulance dispatch?', [
       { text: 'No', style: 'cancel' },
-      { text: 'Yes, Cancel', style: 'destructive', onPress: () => navigation.goBack() },
+      { text: 'Yes, Cancel Dispatch', style: 'destructive', onPress: () => navigation.goBack() },
     ]);
   };
 
@@ -48,21 +55,43 @@ export const AmbulanceTrackingScreen = ({ navigation }) => {
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Hospital Trauma Team Alerted Banner (Web Parity) */}
+        <View style={styles.traumaBanner}>
+          <View style={styles.traumaDot} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.traumaTitle}>Hospital Emergency Resus Bay Pre-Alerted</Text>
+            <Text style={styles.traumaDesc}>
+              Trauma surgical team and ER Senior Registrar have been briefed on incoming cardiac telemetry.
+            </Text>
+          </View>
+        </View>
+
         {/* Real-time Map Visual */}
         <MapPlaceholder
           title="GPS Emergency Telemetry Stream"
-          subtitle={`Ambulance #08 • Live Satellite Tracking • ETA ~${etaMins} mins`}
+          subtitle={`Ambulance #08 • Live Satellite Tracking • ${distanceKm} km away`}
           height={200}
         />
 
-        {/* ETA & Status Hero */}
+        {/* ETA & Status Hero Card */}
         <Card style={styles.etaCard}>
           <View style={styles.etaHeader}>
             <View>
               <Text style={styles.vehicleName}>Cardiac ALS Ambulance #08</Text>
-              <Text style={styles.regNo}>KA-01-EQ-9042 • Mobile ICU</Text>
+              <Text style={styles.regNo}>KA-01-EQ-9042 • Mobile Intensive Care Unit</Text>
             </View>
             <StatusBadge status="en_route" type="badge" />
+          </View>
+
+          {/* Route Progress Bar */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressLabels}>
+              <Text style={styles.progressLabel}>DISPATCH BASE</Text>
+              <Text style={styles.progressLabel}>ARRIVING AT PATIENT</Text>
+            </View>
+            <View style={styles.progressBarBg}>
+              <View style={[styles.progressBarFill, { width: `${routeProgress}%` }]} />
+            </View>
           </View>
 
           <View style={styles.etaRow}>
@@ -71,7 +100,11 @@ export const AmbulanceTrackingScreen = ({ navigation }) => {
               <Text style={styles.etaValue}>0{etaMins} MINS</Text>
             </View>
             <View style={styles.etaBlock}>
-              <Text style={styles.etaLabel}>CURRENT SPEED</Text>
+              <Text style={styles.etaLabel}>DISTANCE TO YOU</Text>
+              <Text style={styles.distanceValue}>{distanceKm} KM</Text>
+            </View>
+            <View style={styles.etaBlock}>
+              <Text style={styles.etaLabel}>SPEED</Text>
               <Text style={styles.speedValue}>54 km/h</Text>
             </View>
           </View>
@@ -99,11 +132,11 @@ export const AmbulanceTrackingScreen = ({ navigation }) => {
             </View>
             <View style={styles.personMeta}>
               <Text style={styles.personRole}>Emergency Medical Technician (EMT)</Text>
-              <Text style={styles.personName}>Sister Sunita / Dr. R. K. Sen</Text>
+              <Text style={styles.personName}>Sister Sunita (ALS Specialist)</Text>
             </View>
-            <View style={styles.alsBadge}>
-              <Text style={styles.alsText}>ALS CERTIFIED</Text>
-            </View>
+            <TouchableOpacity style={[styles.callCircle, { backgroundColor: COLORS.hospitalTeal }]} onPress={handleCallEMT}>
+              <Ionicons name="call" size={18} color={COLORS.cardBg} />
+            </TouchableOpacity>
           </View>
         </Card>
 
@@ -112,7 +145,7 @@ export const AmbulanceTrackingScreen = ({ navigation }) => {
         <Card style={styles.equipmentCard}>
           <View style={styles.equipItem}>
             <Ionicons name="checkmark-circle" size={16} color={COLORS.triageGreen} />
-            <Text style={styles.equipText}>Dual 10L O2 Medical Oxygen Cylinders (Full)</Text>
+            <Text style={styles.equipText}>Dual 10L O2 Medical Oxygen Cylinders (100% Full)</Text>
           </View>
           <View style={styles.equipItem}>
             <Ionicons name="checkmark-circle" size={16} color={COLORS.triageGreen} />
@@ -120,7 +153,11 @@ export const AmbulanceTrackingScreen = ({ navigation }) => {
           </View>
           <View style={styles.equipItem}>
             <Ionicons name="checkmark-circle" size={16} color={COLORS.triageGreen} />
-            <Text style={styles.equipText}>Emergency Ventilator & Suction Apparatus</Text>
+            <Text style={styles.equipText}>Emergency Transport Ventilator & Suction</Text>
+          </View>
+          <View style={styles.equipItem}>
+            <Ionicons name="checkmark-circle" size={16} color={COLORS.triageGreen} />
+            <Text style={styles.equipText}>IV Infusion Pumps & Resuscitation Kit</Text>
           </View>
         </Card>
 
@@ -271,5 +308,63 @@ const styles = StyleSheet.create({
     width: '100%',
     borderColor: COLORS.triageRed,
     marginBottom: 16,
+  },
+  traumaBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
+    borderWidth: 1,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 14,
+    gap: 10,
+  },
+  traumaDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: COLORS.triageRed,
+  },
+  traumaTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#991B1B',
+  },
+  traumaDesc: {
+    fontSize: 11,
+    color: '#7F1D1D',
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  progressContainer: {
+    marginVertical: 12,
+  },
+  progressLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  progressLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: COLORS.slate,
+    letterSpacing: 0.5,
+  },
+  progressBarBg: {
+    height: 8,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: COLORS.hospitalBlue,
+    borderRadius: 4,
+  },
+  distanceValue: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: COLORS.hospitalTeal,
   },
 });

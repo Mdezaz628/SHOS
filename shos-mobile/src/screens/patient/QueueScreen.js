@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Switch,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
@@ -16,6 +18,8 @@ import { useHospitalData } from '../../context/HospitalDataContext';
 
 export const QueueScreen = ({ navigation }) => {
   const { liveQueue, updateLiveQueue } = useHospitalData();
+  const [chimeEnabled, setChimeEnabled] = useState(true);
+  const [showDirections, setShowDirections] = useState(false);
 
   const myToken = 24;
   const currentServing = liveQueue?.currentServing || liveQueue?.currentServingToken || 19;
@@ -24,16 +28,30 @@ export const QueueScreen = ({ navigation }) => {
 
   // Simulator button for testing real-time queue advancement
   const advanceQueue = () => {
+    const nextToken = currentServing + 1;
     updateLiveQueue({
       ...liveQueue,
-      currentServing: currentServing + 1,
+      currentServing: nextToken,
     });
+    if (chimeEnabled && nextToken >= myToken - 1) {
+      Alert.alert(
+        '🔔 OPD Chime Notification',
+        `Token #${nextToken} called for Room 104. You are next in line! Please proceed to Cabin 104 waiting bench.`
+      );
+    }
   };
+
+  const steps = [
+    { label: 'OPD Check-In', completed: true, icon: 'checkmark-circle' },
+    { label: 'Vitals Recorded', completed: true, icon: 'checkmark-circle' },
+    { label: 'Waiting Lounge', completed: peopleAhead > 0, active: peopleAhead > 0, icon: 'time' },
+    { label: 'Consultation', completed: peopleAhead === 0, active: peopleAhead === 0, icon: 'medkit' },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
       <Header
-        title="Live OPD Queue"
+        title="Live OPD Queue Radar"
         showBack={true}
         onBackPress={() => navigation.goBack()}
         showRole={true}
@@ -44,7 +62,7 @@ export const QueueScreen = ({ navigation }) => {
         <Card style={styles.heroCard}>
           <View style={styles.statusIndicator}>
             <View style={styles.liveDot} />
-            <Text style={styles.liveText}>LIVE CLINICAL QUEUE</Text>
+            <Text style={styles.liveText}>LIVE CLINICAL QUEUE RADAR</Text>
           </View>
 
           <View style={styles.tokenRow}>
@@ -76,6 +94,38 @@ export const QueueScreen = ({ navigation }) => {
           </View>
         </Card>
 
+        {/* 4-Step Queue Progress Timeline (Web Parity) */}
+        <Text style={styles.sectionHeading}>VISIT STAGE TIMELINE</Text>
+        <Card style={styles.timelineCard}>
+          <View style={styles.timelineRow}>
+            {steps.map((step, idx) => (
+              <View key={idx} style={styles.timelineStep}>
+                <View
+                  style={[
+                    styles.stepCircle,
+                    step.completed && styles.stepCompleted,
+                    step.active && styles.stepActive,
+                  ]}
+                >
+                  <Ionicons
+                    name={step.icon}
+                    size={14}
+                    color={step.completed || step.active ? '#FFF' : COLORS.slate}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.stepLabel,
+                    (step.completed || step.active) && styles.stepLabelActive,
+                  ]}
+                >
+                  {step.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+
         {/* Doctor & Room Card */}
         <Card style={styles.infoCard}>
           <Text style={styles.cardHeader}>CONSULTATION DETAILS</Text>
@@ -95,26 +145,65 @@ export const QueueScreen = ({ navigation }) => {
           </View>
           <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
             <Text style={styles.detailLabel}>Queue Status</Text>
-            <Text style={[styles.detailVal, { color: COLORS.hospitalTeal }]}>
+            <Text style={[styles.detailVal, { color: peopleAhead === 0 ? COLORS.triageGreen : COLORS.hospitalTeal, fontWeight: '800' }]}>
               {peopleAhead === 0 ? 'PLEASE ENTER CONSULTATION ROOM' : 'Waiting in OPD Lobby'}
             </Text>
           </View>
         </Card>
 
-        {/* Queue Protocol Tips */}
-        <View style={styles.tipBox}>
-          <Ionicons name="information-circle" size={20} color={COLORS.hospitalBlue} />
-          <View style={styles.tipContent}>
-            <Text style={styles.tipTitle}>Queue Protocol</Text>
-            <Text style={styles.tipDesc}>
-              Audio chime and OPD screen announcements activate when your token is within 2 positions. Please remain near Waiting Zone B.
-            </Text>
+        {/* Indoor Wayfinding Navigation Toggle (Web Parity) */}
+        <TouchableOpacity
+          style={styles.directionsToggle}
+          onPress={() => setShowDirections(!showDirections)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.directionsHeader}>
+            <Ionicons name="navigate-circle" size={20} color={COLORS.hospitalBlue} />
+            <Text style={styles.directionsTitle}>Indoor Hospital Wayfinding to Room 204</Text>
+            <Ionicons
+              name={showDirections ? 'chevron-up' : 'chevron-down'}
+              size={18}
+              color={COLORS.slate}
+            />
           </View>
+          {showDirections && (
+            <View style={styles.directionsBody}>
+              <View style={styles.dirStep}>
+                <Text style={styles.dirStepNum}>1</Text>
+                <Text style={styles.dirStepText}>Take Elevator B to the 2nd Floor.</Text>
+              </View>
+              <View style={styles.dirStep}>
+                <Text style={styles.dirStepNum}>2</Text>
+                <Text style={styles.dirStepText}>Turn left past Nursing Station #2.</Text>
+              </View>
+              <View style={styles.dirStep}>
+                <Text style={styles.dirStepNum}>3</Text>
+                <Text style={styles.dirStepText}>Room OPD-204 (Cardiology) is the second door on your right.</Text>
+              </View>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        {/* Audio Chime Notification Switch */}
+        <View style={styles.chimeCard}>
+          <View style={styles.chimeIconWrap}>
+            <Ionicons name="volume-high" size={20} color={COLORS.hospitalBlue} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.chimeTitle}>Audio & Haptic Chime Alerts</Text>
+            <Text style={styles.chimeDesc}>Vibrate and sound chime when your token is within 2 slots</Text>
+          </View>
+          <Switch
+            value={chimeEnabled}
+            onValueChange={setChimeEnabled}
+            trackColor={{ false: '#CBD5E1', true: COLORS.hospitalBlue }}
+            thumbColor="#FFF"
+          />
         </View>
 
         {/* Demo Advance Queue Trigger */}
         <Button
-          title="Simulate Next Token Called (Demo)"
+          title="Simulate Next Token Called (Advance Queue)"
           variant="outline"
           size="medium"
           icon="arrow-forward-circle-outline"
@@ -250,27 +339,119 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.navy,
   },
-  tipBox: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.tealLight,
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 20,
+  timelineCard: {
+    marginBottom: 16,
+    paddingVertical: 14,
   },
-  tipContent: {
-    marginLeft: 12,
+  timelineRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  timelineStep: {
+    alignItems: 'center',
     flex: 1,
   },
-  tipTitle: {
+  stepCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  stepCompleted: {
+    backgroundColor: COLORS.triageGreen,
+  },
+  stepActive: {
+    backgroundColor: COLORS.hospitalBlue,
+  },
+  stepLabel: {
+    fontSize: 10,
+    color: COLORS.slate,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  stepLabelActive: {
+    color: COLORS.navy,
+    fontWeight: '800',
+  },
+  directionsToggle: {
+    backgroundColor: COLORS.offWhite,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+  },
+  directionsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  directionsTitle: {
     fontSize: 12,
     fontWeight: '700',
     color: COLORS.hospitalBlue,
-    marginBottom: 2,
+    flex: 1,
   },
-  tipDesc: {
+  directionsBody: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    gap: 8,
+  },
+  dirStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  dirStepNum: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.tealLight,
+    textAlign: 'center',
+    lineHeight: 20,
     fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.hospitalBlue,
+  },
+  dirStepText: {
+    fontSize: 12,
     color: COLORS.navy,
-    lineHeight: 16,
+    flex: 1,
+  },
+  chimeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.offWhite,
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+    gap: 12,
+  },
+  chimeIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.tealLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chimeTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.navy,
+  },
+  chimeDesc: {
+    fontSize: 10,
+    color: COLORS.slate,
+    marginTop: 2,
   },
   simBtn: {
     width: '100%',

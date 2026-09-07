@@ -21,11 +21,14 @@ export const PrescriptionsScreen = ({ navigation }) => {
   const { prescriptions } = useHospitalData();
   const [selectedRx, setSelectedRx] = React.useState(null);
 
+  const [refillStatus, setRefillStatus] = React.useState({});
+
   const handleOrderPharmacy = (rx) => {
+    setRefillStatus((prev) => ({ ...prev, [rx.id]: 'Dispensation Requested' }));
     Alert.alert(
-      'Sent to Central Pharmacy',
-      `Prescription #${rx.id} has been transmitted to Central Hospital Pharmacy for rapid dispensing.`,
-      [{ text: 'OK' }]
+      'Pharmacy Dispensing Alert 💊',
+      `Prescription #${rx.id} transmitted to Hospital Central Pharmacy.\n\nEstimated Ready: ~12 minutes at Counter 3.\nSMS notification will be dispatched when ready for collection.`,
+      [{ text: 'Acknowledged' }]
     );
   };
 
@@ -39,62 +42,103 @@ export const PrescriptionsScreen = ({ navigation }) => {
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Pharmacy Refill Policy Notice */}
+        <View style={styles.policyCard}>
+          <Ionicons name="medkit" size={20} color={COLORS.hospitalBlue} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.policyTitle}>Direct Hospital Pharmacy Integration</Text>
+            <Text style={styles.policyDesc}>
+              Tap "Order at Pharmacy" to instantly route your digital prescription to the central pharmacy dispensing queue.
+            </Text>
+          </View>
+        </View>
+
         <Text style={styles.sectionHeading}>CLINICAL PRESCRIPTIONS ({(prescriptions || []).length})</Text>
 
-        {(prescriptions || []).map((rx) => (
-          <Card key={rx.id} style={styles.rxCard}>
-            {/* Header with Doctor & Date */}
-            <View style={styles.rxHeader}>
-              <View>
-                <Text style={styles.docName}>{rx.doctorName}</Text>
-                <Text style={styles.docSpecialty}>{rx.specialty} • {rx.date}</Text>
-              </View>
-              <StatusBadge status={rx.status || 'active'} type="badge" />
-            </View>
+        {(prescriptions || []).map((rx) => {
+          const isRefillActive = refillStatus[rx.id];
 
-            {/* Diagnosis */}
-            <View style={styles.diagnosisBox}>
-              <Text style={styles.diagnosisLabel}>DIAGNOSIS:</Text>
-              <Text style={styles.diagnosisText}>{rx.diagnosis}</Text>
-            </View>
-
-            {/* Medicines List */}
-            <Text style={styles.medsTitle}>PRESCRIBED MEDICINES</Text>
-            {rx.medicines?.map((med, idx) => (
-              <View key={idx} style={styles.medItem}>
-                <View style={styles.medIconWrap}>
-                  <Ionicons name="medical" size={16} color={COLORS.hospitalBlue} />
+          return (
+            <Card key={rx.id} style={styles.rxCard}>
+              {/* Header with Doctor & Date */}
+              <View style={styles.rxHeader}>
+                <View>
+                  <Text style={styles.docName}>{rx.doctorName}</Text>
+                  <Text style={styles.docSpecialty}>{rx.specialty} • {rx.date}</Text>
                 </View>
-                <View style={styles.medDetails}>
-                  <Text style={styles.medName}>
-                    {med.name} <Text style={styles.dosage}>({med.dosage})</Text>
-                  </Text>
-                  <Text style={styles.dosageInstruction}>
-                    {med.frequency} • {med.duration} • {med.instructions}
+                <StatusBadge status={rx.status || 'active'} type="badge" />
+              </View>
+
+              {/* Refill status badge if active */}
+              {isRefillActive && (
+                <View style={styles.refillBadge}>
+                  <Ionicons name="hourglass-outline" size={14} color="#D97706" />
+                  <Text style={styles.refillBadgeText}>
+                    Refill in Progress • Central Pharmacy Counter 3 (~12m)
                   </Text>
                 </View>
-              </View>
-            ))}
+              )}
 
-            {/* Action Bar */}
-            <View style={styles.actionBar}>
-              <Button
-                title="Order at Pharmacy"
-                variant="primary"
-                size="small"
-                icon="cart-outline"
-                onPress={() => handleOrderPharmacy(rx)}
-              />
-              <Button
-                title="Download eRx PDF"
-                variant="outline"
-                size="small"
-                icon="download-outline"
-                onPress={() => setSelectedRx(rx)}
-              />
-            </View>
-          </Card>
-        ))}
+              {/* Diagnosis */}
+              <View style={styles.diagnosisBox}>
+                <Text style={styles.diagnosisLabel}>CLINICAL DIAGNOSIS & INDICATION:</Text>
+                <Text style={styles.diagnosisText}>{rx.diagnosis}</Text>
+              </View>
+
+              {/* Medicines List */}
+              <Text style={styles.medsTitle}>PRESCRIBED MEDICATIONS</Text>
+              {rx.medicines?.map((med, idx) => (
+                <View key={idx} style={styles.medItem}>
+                  <View style={styles.medIconWrap}>
+                    <Ionicons name="medical" size={16} color={COLORS.hospitalBlue} />
+                  </View>
+                  <View style={styles.medDetails}>
+                    <View style={styles.medNameRow}>
+                      <Text style={styles.medName}>{med.name}</Text>
+                      <Text style={styles.dosageBadge}>{med.dosage}</Text>
+                    </View>
+                    <Text style={styles.dosageInstruction}>
+                      {med.frequency} • {med.duration} • {med.instructions}
+                    </Text>
+                    <View style={styles.timingRow}>
+                      <View style={styles.timingChip}>
+                        <Text style={styles.timingChipText}>☀️ Morn</Text>
+                      </View>
+                      <View style={styles.timingChip}>
+                        <Text style={styles.timingChipText}>🌤️ Aft</Text>
+                      </View>
+                      <View style={styles.timingChip}>
+                        <Text style={styles.timingChipText}>🌙 Night</Text>
+                      </View>
+                      <View style={[styles.timingChip, { backgroundColor: '#FEF3C7' }]}>
+                        <Text style={[styles.timingChipText, { color: '#B45309' }]}>After Meals</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              ))}
+
+              {/* Action Bar */}
+              <View style={styles.actionBar}>
+                <Button
+                  title={isRefillActive ? 'Refill Ordered ✓' : 'Order Refill at Pharmacy'}
+                  variant={isRefillActive ? 'outline' : 'primary'}
+                  size="small"
+                  icon={isRefillActive ? 'checkmark-circle' : 'cart-outline'}
+                  onPress={() => handleOrderPharmacy(rx)}
+                  disabled={!!isRefillActive}
+                />
+                <Button
+                  title="Download eRx PDF"
+                  variant="outline"
+                  size="small"
+                  icon="download-outline"
+                  onPress={() => setSelectedRx(rx)}
+                />
+              </View>
+            </Card>
+          );
+        })}
 
         <View style={{ height: 30 }} />
       </ScrollView>
@@ -216,5 +260,71 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: COLORS.borderLight,
+  },
+  policyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.tealLight,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+    gap: 12,
+  },
+  policyTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.hospitalBlue,
+  },
+  policyDesc: {
+    fontSize: 11,
+    color: COLORS.navy,
+    lineHeight: 15,
+    marginTop: 2,
+  },
+  refillBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 10,
+    gap: 6,
+  },
+  refillBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  medNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dosageBadge: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.hospitalBlue,
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  timingRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 6,
+  },
+  timingChip: {
+    backgroundColor: COLORS.offWhite,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  timingChipText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: COLORS.slate,
   },
 });

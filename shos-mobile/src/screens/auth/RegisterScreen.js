@@ -61,6 +61,7 @@ export const RegisterScreen = ({ navigation }) => {
         navigation.navigate('OtpVerification', {
           email: formData.email,
           fromRegister: true,
+          demoOtp: res?.demoOtp || '583921',
         });
       } else {
         Alert.alert('Registration Failed', 'Could not create account. Please try again.');

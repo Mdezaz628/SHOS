@@ -13,7 +13,7 @@ const getHostIp = () => {
   if (debuggerHost) {
     return debuggerHost.split(':')[0];
   }
-  return '172.29.17.206';
+  return '172.29.34.120';
 };
 
 const LAN_IP = getHostIp();

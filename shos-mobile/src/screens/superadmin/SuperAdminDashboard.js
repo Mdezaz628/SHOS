@@ -108,25 +108,34 @@ export const SuperAdminDashboard = ({ navigation }) => {
           />
         </View>
 
-        {/* Security Modules Navigation */}
-        <Text style={styles.sectionHeading}>AUDIT & SECURITY SURVEILLANCE</Text>
+        {/* Security & Financial Modules Navigation */}
+        <Text style={styles.sectionHeading}>AUDIT, SECURITY & FINANCIAL SURVEILLANCE</Text>
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={styles.actionBox}
             onPress={() => navigation.navigate('AuditLogs')}
           >
-            <Ionicons name="finger-print" size={24} color={COLORS.hospitalBlue} />
-            <Text style={styles.actionTitle}>EHR Audit Trail</Text>
-            <Text style={styles.actionDesc}>NABH Access Audits</Text>
+            <Ionicons name="finger-print" size={22} color={COLORS.hospitalBlue} />
+            <Text style={styles.actionTitle}>EHR Audit</Text>
+            <Text style={styles.actionDesc}>NABH Logs</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.actionBox}
             onPress={() => navigation.navigate('SecurityEvents')}
           >
-            <Ionicons name="lock-closed" size={24} color={COLORS.triageRed} />
-            <Text style={styles.actionTitle}>Security Events</Text>
-            <Text style={styles.actionDesc}>Auth & IP Monitoring</Text>
+            <Ionicons name="lock-closed" size={22} color={COLORS.triageRed} />
+            <Text style={styles.actionTitle}>Security</Text>
+            <Text style={styles.actionDesc}>Firewall/IP</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionBox}
+            onPress={() => navigation.navigate('FinancialIntelligence')}
+          >
+            <Ionicons name="bar-chart" size={22} color={COLORS.triageGreen} />
+            <Text style={styles.actionTitle}>Financial</Text>
+            <Text style={styles.actionDesc}>EBIT & TPA</Text>
           </TouchableOpacity>
         </View>
 
@@ -196,6 +205,15 @@ export const SuperAdminDashboard = ({ navigation }) => {
             color={COLORS.hospitalBlue}
           />
         </View>
+
+        <Button
+          title="Open Full Financial Intelligence & Department EBIT"
+          variant="primary"
+          size="small"
+          icon="bar-chart"
+          onPress={() => navigation.navigate('FinancialIntelligence')}
+          style={{ marginBottom: 16 }}
+        />
 
         {/* Recent Financial Transactions List */}
         {finance?.transactions && (

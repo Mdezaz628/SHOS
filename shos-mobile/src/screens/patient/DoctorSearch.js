@@ -22,19 +22,26 @@ export const DoctorSearch = ({ navigation }) => {
   const departments = [
     'All',
     'Cardiology',
+    'Pulmonology',
+    'Orthopaedics',
     'Neurology',
-    'Orthopedics',
     'General Medicine',
     'Pediatrics',
     'Dermatology',
   ];
 
   const filteredDoctors = (doctors || []).filter((doc) => {
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.specialty.toLowerCase().includes(searchQuery.toLowerCase());
+      !query ||
+      (doc.name || '').toLowerCase().includes(query) ||
+      (doc.department || '').toLowerCase().includes(query) ||
+      (doc.specialty || '').toLowerCase().includes(query) ||
+      (doc.qualification || '').toLowerCase().includes(query);
     const matchesDept =
-      selectedDept === 'All' || doc.department === selectedDept || doc.specialty.includes(selectedDept);
+      selectedDept === 'All' ||
+      (doc.department || '').toLowerCase().includes(selectedDept.toLowerCase()) ||
+      (doc.specialty || '').toLowerCase().includes(selectedDept.toLowerCase());
     return matchesSearch && matchesDept;
   });
 

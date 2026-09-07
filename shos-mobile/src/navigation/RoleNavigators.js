@@ -34,9 +34,12 @@ import { PharmacyDashboard } from '../screens/pharmacy/PharmacyDashboard';
 import { AmbulanceDriverDashboard } from '../screens/ambulance/AmbulanceDriverDashboard';
 import { HousekeepingDashboard } from '../screens/housekeeping/HousekeepingDashboard';
 import { ParkingDashboard } from '../screens/parking/ParkingDashboard';
+import { VehicleEntryScreen } from '../screens/parking/VehicleEntryScreen';
 import { ReceptionDashboard } from '../screens/reception/ReceptionDashboard';
 import { BillingDashboard } from '../screens/billing/BillingDashboard';
+import { InsuranceTpaScreen } from '../screens/billing/InsuranceTpaScreen';
 import { HRDashboard } from '../screens/hr/HRDashboard';
+import { ShiftManagementScreen } from '../screens/hr/ShiftManagementScreen';
 import { DepartmentDashboard } from '../screens/department/DepartmentDashboard';
 
 // Admin Screens
@@ -52,6 +55,7 @@ import { ResourceEquipmentScreen } from '../screens/admin/ResourceEquipmentScree
 import { SuperAdminDashboard } from '../screens/superadmin/SuperAdminDashboard';
 import { AuditLogsScreen } from '../screens/superadmin/AuditLogsScreen';
 import { SecurityEventsScreen } from '../screens/superadmin/SecurityEventsScreen';
+import { FinancialIntelligenceScreen } from '../screens/superadmin/FinancialIntelligenceScreen';
 
 // Common Screens
 import { NotificationsScreen } from '../screens/common/NotificationsScreen';
@@ -112,6 +116,7 @@ export const PatientNavigator = () => (
     <Stack.Screen name="MedicalReports" component={MedicalReports} />
     <Stack.Screen name="Prescriptions" component={PrescriptionsScreen} />
     <Stack.Screen name="Bills" component={BillsScreen} />
+    <Stack.Screen name="InsuranceTpa" component={InsuranceTpaScreen} />
     <Stack.Screen name="AdmissionBed" component={AdmissionBedScreen} />
     <Stack.Screen name="EmergencySOS" component={EmergencySOSScreen} />
     <Stack.Screen name="AmbulanceTracking" component={AmbulanceTrackingScreen} />
@@ -215,6 +220,7 @@ export const HousekeepingNavigator = () => (
 export const ParkingNavigator = () => (
   <Stack.Navigator screenOptions={commonScreenOptions}>
     <Stack.Screen name="ParkingDashboard" component={ParkingDashboard} />
+    <Stack.Screen name="VehicleEntry" component={VehicleEntryScreen} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} />
     <Stack.Screen name="Settings" component={SettingsScreen} />
     <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -239,6 +245,7 @@ export const ReceptionNavigator = () => (
 export const BillingNavigator = () => (
   <Stack.Navigator screenOptions={commonScreenOptions}>
     <Stack.Screen name="BillingDashboard" component={BillingDashboard} />
+    <Stack.Screen name="InsuranceTpa" component={InsuranceTpaScreen} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} />
     <Stack.Screen name="Settings" component={SettingsScreen} />
     <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -251,6 +258,7 @@ export const BillingNavigator = () => (
 export const HRNavigator = () => (
   <Stack.Navigator screenOptions={commonScreenOptions}>
     <Stack.Screen name="HRDashboard" component={HRDashboard} />
+    <Stack.Screen name="ShiftManagement" component={ShiftManagementScreen} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} />
     <Stack.Screen name="Settings" component={SettingsScreen} />
     <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -293,6 +301,7 @@ export const AdminNavigator = () => (
 export const SuperAdminNavigator = () => (
   <Stack.Navigator screenOptions={commonScreenOptions}>
     <Stack.Screen name="SuperAdminDashboard" component={SuperAdminDashboard} />
+    <Stack.Screen name="FinancialIntelligence" component={FinancialIntelligenceScreen} />
     <Stack.Screen name="AuditLogs" component={AuditLogsScreen} />
     <Stack.Screen name="SecurityEvents" component={SecurityEventsScreen} />
     <Stack.Screen name="Notifications" component={NotificationsScreen} />

@@ -158,16 +158,11 @@ export const BillingDashboard = ({ navigation }) => {
         {/* Quick Billing Action Bar */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
           <Button
-            title="Pre-Auth TPA Claim"
+            title="TPA Insurance Desk"
             variant="outline"
             size="small"
             icon="shield-checkmark"
-            onPress={() =>
-              Alert.alert(
-                'TPA Claim Requisition',
-                'Pre-authorization request dispatched to Star Health / HDFC Ergo portal. Cashless approval in ~45 mins.'
-              )
-            }
+            onPress={() => navigation.navigate('InsuranceTpa')}
             style={{ flex: 1 }}
           />
           <Button

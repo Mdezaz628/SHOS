@@ -86,7 +86,7 @@ export const ParkingDashboard = ({ navigation }) => {
             variant="primary"
             size="small"
             icon="car-sport"
-            onPress={() => setIsEntryModalOpen(true)}
+            onPress={() => navigation.navigate('VehicleEntry')}
           />
         </View>
 

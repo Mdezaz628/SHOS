@@ -48,10 +48,19 @@ export const PatientDashboard = ({ navigation }) => {
   const quickActions = [
     { label: 'Book OPD', icon: 'calendar', color: COLORS.hospitalBlue, route: 'DoctorSearch' },
     { label: 'Live Queue', icon: 'time', color: COLORS.hospitalTeal, route: 'Queue' },
+    { label: 'Lab Reports', icon: 'flask', color: '#EC4899', route: 'MedicalReports' },
     { label: 'My Rx', icon: 'medkit', color: '#8B5CF6', route: 'Prescriptions' },
-    { label: 'Reports', icon: 'flask', color: '#EC4899', route: 'MedicalReports' },
-    { label: 'Bed / Ward', icon: 'bed', color: '#0284C7', route: 'AdmissionBed' },
-    { label: 'Pay Bills', icon: 'receipt', color: '#10B981', route: 'Bills' },
+    { label: 'Ward Beds', icon: 'bed', color: '#0284C7', route: 'AdmissionBed' },
+    { label: 'Bills & TPA', icon: 'receipt', color: '#10B981', route: 'Bills' },
+    { label: 'Ambulance SOS', icon: 'warning', color: COLORS.triageRed, route: 'EmergencySOS' },
+    { label: 'Doctors', icon: 'person-search', color: '#6366F1', route: 'DoctorSearch' },
+  ];
+
+  const vitals = [
+    { label: 'Pulse / HR', value: '74 bpm', status: 'Normal', icon: 'heart', color: COLORS.triageGreen },
+    { label: 'SpO2 Oxygen', value: '98%', status: 'Optimal', icon: 'water', color: COLORS.hospitalBlue },
+    { label: 'Blood Pressure', value: '120/80', status: 'Normal', icon: 'fitness', color: COLORS.hospitalTeal },
+    { label: 'Body Temp', value: '98.4°F', status: 'Normal', icon: 'thermometer', color: '#F59E0B' },
   ];
 
   return (
@@ -74,12 +83,33 @@ export const PatientDashboard = ({ navigation }) => {
             <View>
               <Text style={styles.greetingText}>Welcome back,</Text>
               <Text style={styles.patientName}>{currentUser?.name || 'Rahul Sharma'}</Text>
+              <Text style={styles.patientEmail}>{currentUser?.email || 'patient@shos.hospital'}</Text>
             </View>
             <View style={styles.uhidBadge}>
-              <Text style={styles.uhidLabel}>UHID</Text>
+              <Text style={styles.uhidLabel}>UHID / MRN</Text>
               <Text style={styles.uhidValue}>{currentUser?.uhid || 'SHOS-2026-8942'}</Text>
             </View>
           </View>
+        </View>
+
+        {/* Live Vitals Monitor Widget (Web Feature Parity) */}
+        <View style={styles.headingRow}>
+          <Text style={styles.sectionHeading}>LIVE VITALS TELEMETRY</Text>
+          <Text style={styles.vitalsTimestamp}>Synced via Bedside Monitor</Text>
+        </View>
+        <View style={styles.vitalsGrid}>
+          {vitals.map((v, i) => (
+            <View key={i} style={styles.vitalCard}>
+              <View style={[styles.vitalIconWrap, { backgroundColor: `${v.color}15` }]}>
+                <Ionicons name={v.icon} size={18} color={v.color} />
+              </View>
+              <Text style={styles.vitalVal}>{v.value}</Text>
+              <Text style={styles.vitalLabel}>{v.label}</Text>
+              <View style={[styles.vitalStatusChip, { backgroundColor: `${v.color}18` }]}>
+                <Text style={[styles.vitalStatusText, { color: v.color }]}>{v.status}</Text>
+              </View>
+            </View>
+          ))}
         </View>
 
         {/* 🚨 Emergency SOS Banner */}
@@ -92,10 +122,40 @@ export const PatientDashboard = ({ navigation }) => {
             <Ionicons name="warning" size={24} color={COLORS.cardBg} />
           </View>
           <View style={styles.sosTextWrap}>
-            <Text style={styles.sosTitle}>EMERGENCY SOS</Text>
-            <Text style={styles.sosDesc}>Call Hospital ER or dispatch GPS Cardiac Ambulance</Text>
+            <Text style={styles.sosTitle}>EMERGENCY SOS DISPATCH</Text>
+            <Text style={styles.sosDesc}>Call Hospital ER or request instant GPS Cardiac Ambulance</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={COLORS.cardBg} />
+        </TouchableOpacity>
+
+        {/* Active Live Token Banner */}
+        <TouchableOpacity
+          style={styles.tokenBanner}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('Queue')}
+        >
+          <View style={styles.tokenBannerHeader}>
+            <View style={styles.tokenDot} />
+            <Text style={styles.tokenBannerTitle}>ACTIVE OPD QUEUE TOKEN</Text>
+            <Text style={styles.tokenTapHint}>Tap for live radar ›</Text>
+          </View>
+          <View style={styles.tokenRow}>
+            <View style={styles.tokenBox}>
+              <Text style={styles.tokenBoxLabel}>Your Token</Text>
+              <Text style={styles.tokenNumber}>#24</Text>
+            </View>
+            <View style={styles.tokenDivider} />
+            <View style={styles.tokenBox}>
+              <Text style={styles.tokenBoxLabel}>Now Calling</Text>
+              <Text style={styles.tokenCalling}>#19</Text>
+            </View>
+            <View style={styles.tokenDivider} />
+            <View style={styles.tokenBox}>
+              <Text style={styles.tokenBoxLabel}>Est. Wait</Text>
+              <Text style={styles.tokenWait}>~15m</Text>
+            </View>
+          </View>
+          <Text style={styles.tokenCabinInfo}>Room OPD-104 • Dr. Arvind Sharma (Cardiology)</Text>
         </TouchableOpacity>
 
         {/* Quick Actions Grid */}
@@ -117,7 +177,7 @@ export const PatientDashboard = ({ navigation }) => {
         </View>
 
         {/* Live Queue Status */}
-        <Text style={styles.sectionHeading}>LIVE OPD QUEUE</Text>
+        <Text style={styles.sectionHeading}>OPD QUEUE STATUS</Text>
         <QueueCard
           queue={liveQueue}
           style={{ marginBottom: 14 }}
@@ -218,6 +278,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.navy,
     marginTop: 2,
+  },
+  patientEmail: {
+    fontSize: 11,
+    color: COLORS.slate,
+    marginTop: 1,
   },
   uhidBadge: {
     backgroundColor: COLORS.tealLight,
@@ -361,5 +426,133 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.slate,
     marginTop: 2,
+  },
+  vitalsTimestamp: {
+    fontSize: 10,
+    color: COLORS.hospitalTeal,
+    fontWeight: '700',
+  },
+  vitalsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  vitalCard: {
+    width: '48.5%',
+    backgroundColor: COLORS.offWhite,
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+  },
+  vitalIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  vitalVal: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: COLORS.navy,
+  },
+  vitalLabel: {
+    fontSize: 11,
+    color: COLORS.slate,
+    marginTop: 1,
+    fontWeight: '600',
+  },
+  vitalStatusChip: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginTop: 6,
+  },
+  vitalStatusText: {
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  tokenBanner: {
+    backgroundColor: '#0F172A',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  tokenBannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  tokenDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+    marginRight: 6,
+  },
+  tokenBannerTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#94A3B8',
+    letterSpacing: 0.5,
+    flex: 1,
+  },
+  tokenTapHint: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#38BDF8',
+  },
+  tokenRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  tokenBox: {
+    alignItems: 'center',
+  },
+  tokenBoxLabel: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  tokenNumber: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#38BDF8',
+  },
+  tokenDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: '#334155',
+  },
+  tokenCalling: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#F8FAFC',
+  },
+  tokenWait: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#34D399',
+  },
+  tokenCabinInfo: {
+    fontSize: 11,
+    color: '#CBD5E1',
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
+import { ROLES } from '../../constants/roles';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -18,13 +20,16 @@ import { authService } from '../../services/authService';
 export const OtpVerificationScreen = ({ route, navigation }) => {
   const { completeOtpLogin } = useAuth();
   const email = route?.params?.email || 'patient@shos.hospital';
+  const demoOtp = route?.params?.demoOtp || '583921';
+  const isFromRegister = !!route?.params?.fromRegister;
+
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timer, setTimer] = useState(45);
 
   // Active countdown timer effect
-  React.useEffect(() => {
+  useEffect(() => {
     if (timer <= 0) return;
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
@@ -42,19 +47,30 @@ export const OtpVerificationScreen = ({ route, navigation }) => {
       const res = await authService.verifyOtp(otp, email);
       setIsVerifying(false);
       if (res.verified) {
-        if (route?.params?.fromRegister) {
+        if (isFromRegister) {
           // Load pending registered user and activate session
+          let pendingUser = null;
+          let pendingToken = null;
           try {
-            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
             const pendingStr = await AsyncStorage.getItem('@shos_pending_user');
+            pendingToken = await AsyncStorage.getItem('@shos_pending_token');
             if (pendingStr) {
-              const pendingUser = JSON.parse(pendingStr);
-              await completeOtpLogin(pendingUser);
+              pendingUser = JSON.parse(pendingStr);
             }
           } catch (e) {}
 
-          // Navigate directly to PatientTabs so session immediately opens
-          navigation.navigate('PatientTabs');
+          if (!pendingUser) {
+            pendingUser = {
+              id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
+              name: email.split('@')[0] || 'Patient User',
+              email: email,
+              role: ROLES.PATIENT,
+              uhid: 'SHOS-2026-' + Math.floor(1000 + Math.random() * 9000),
+            };
+          }
+
+          // Automatically switches RootNavigator to PatientNavigator
+          await completeOtpLogin(pendingUser, pendingToken);
         } else {
           Alert.alert(
             'Verification Success',
@@ -93,7 +109,7 @@ export const OtpVerificationScreen = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={22} color={COLORS.navy} />
         </TouchableOpacity>
@@ -104,9 +120,24 @@ export const OtpVerificationScreen = ({ route, navigation }) => {
 
         <Text style={styles.title}>Two-Factor Verification</Text>
         <Text style={styles.subtitle}>
-          We sent a 6-digit clinical verification token to:
+          We sent a clinical verification token to:
         </Text>
         <Text style={styles.emailHighlight}>{email}</Text>
+
+        {/* Demo Token Autofill Callout */}
+        <TouchableOpacity
+          style={styles.demoTokenBadge}
+          onPress={() => setOtp(demoOtp)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="key-outline" size={16} color={COLORS.hospitalBlue} />
+          <Text style={styles.demoTokenText}>
+            Demo Code: <Text style={styles.demoCodeBold}>{demoOtp}</Text>
+          </Text>
+          <View style={styles.fillChip}>
+            <Text style={styles.fillChipText}>Tap to Fill</Text>
+          </View>
+        </TouchableOpacity>
 
         <View style={styles.otpBox}>
           <Input
@@ -191,7 +222,39 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.hospitalBlue,
     marginTop: 2,
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+  demoTokenBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    borderColor: '#BFDBFE',
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginBottom: 20,
+    gap: 8,
+  },
+  demoTokenText: {
+    fontSize: 12,
+    color: COLORS.navy,
+  },
+  demoCodeBold: {
+    fontWeight: '800',
+    color: COLORS.hospitalBlue,
+    letterSpacing: 1,
+  },
+  fillChip: {
+    backgroundColor: COLORS.hospitalBlue,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  fillChipText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: '700',
   },
   otpBox: {
     width: '100%',

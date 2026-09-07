@@ -59,25 +59,27 @@ export const AuthProvider = ({ children }) => {
 
   // Registration handler - does not set active user until OTP is verified
   const register = async (formData) => {
-    setIsLoading(true);
-    try {
-      const res = await authService.register(formData);
-      return res;
-    } finally {
-      setIsLoading(false);
-    }
+    // Note: Do not toggle global isLoading here to avoid unmounting AuthNavigator during navigation
+    return await authService.register(formData);
   };
 
   // Complete OTP verification and activate user session
-  const completeOtpLogin = async (user) => {
+  const completeOtpLogin = async (user, token) => {
     if (user) {
-      setCurrentUser(user);
-      setCurrentRole(user.role || ROLES.PATIENT);
-      await AsyncStorage.setItem('@shos_user', JSON.stringify(user));
-      if (user.token) {
-        await AsyncStorage.setItem('@shos_token', user.token);
-      }
-      await AsyncStorage.setItem('@shos_role', user.role || ROLES.PATIENT);
+      const activeUser = {
+        ...user,
+        role: user.role || ROLES.PATIENT,
+        token: token || user.token || 'shos-session-' + Date.now(),
+      };
+      setCurrentUser(activeUser);
+      setCurrentRole(activeUser.role);
+      await AsyncStorage.setItem('@shos_user', JSON.stringify(activeUser));
+      await AsyncStorage.setItem('@shos_token', activeUser.token);
+      await AsyncStorage.setItem('@shos_role', activeUser.role);
+      try {
+        await AsyncStorage.removeItem('@shos_pending_user');
+        await AsyncStorage.removeItem('@shos_pending_token');
+      } catch (e) {}
     }
   };
 
